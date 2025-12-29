@@ -32,16 +32,29 @@ const mongooseOptions = {
   socketTimeoutMS: 45000, // 소켓 타임아웃
 };
 
+// MongoDB 연결 시도
+console.log('MongoDB 연결 시도 중...');
+console.log('MONGO_URI 설정 여부:', !!MONGODB_URI);
+if (MONGODB_URI) {
+  console.log('연결 문자열 (마스킹):', MONGODB_URI.replace(/\/\/.*@/, '//***:***@'));
+}
+
 mongoose.connect(MONGODB_URI, mongooseOptions)
   .then(() => {
-    console.log('MongoDB 연결 성공');
+    console.log('✅ MongoDB 연결 성공!');
     console.log('연결된 데이터베이스:', mongoose.connection.db.databaseName);
-    console.log('연결 문자열:', MONGODB_URI.replace(/\/\/.*@/, '//***:***@'));
+    console.log('연결 문자열 (마스킹):', MONGODB_URI.replace(/\/\/.*@/, '//***:***@'));
   })
   .catch((error) => {
-    console.error('MongoDB 연결 실패:', error.message);
-    console.error('전체 오류:', error);
-    console.error('연결 문자열:', MONGODB_URI ? MONGODB_URI.replace(/\/\/.*@/, '//***:***@') : '설정되지 않음');
+    console.error('❌ MongoDB 연결 실패!');
+    console.error('에러 메시지:', error.message);
+    console.error('에러 이름:', error.name);
+    console.error('에러 코드:', error.code);
+    if (error.reason) {
+      console.error('에러 이유:', error.reason);
+    }
+    console.error('전체 에러 스택:', error.stack);
+    console.error('연결 문자열 (마스킹):', MONGODB_URI ? MONGODB_URI.replace(/\/\/.*@/, '//***:***@') : '설정되지 않음');
     // Heroku에서는 연결 실패해도 서버는 계속 실행되도록 함
   });
 
