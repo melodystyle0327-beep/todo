@@ -12,7 +12,6 @@ console.log(`현재 작업 디렉터리: ${process.cwd()}`);
 
 // Express 앱 생성
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // CORS 설정 (모든 origin 허용)
 app.use(cors());
@@ -35,6 +34,7 @@ mongoose.connect(MONGODB_URI)
   })
   .catch((error) => {
     console.error('MongoDB 연결 실패:', error.message);
+    // Heroku에서는 연결 실패해도 서버는 계속 실행되도록 함
   });
 
 // 라우터 설정
@@ -45,9 +45,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 서버를 포트 5000에서 실행
+// 서버 실행 (Heroku는 PORT 환경 변수를 자동으로 할당)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
 
