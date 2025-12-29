@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할일 관리 앱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .todos-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .todo-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .todo-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .todo-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+            border-left-color: #28a745;
+        }
+
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .todo-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .todo-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .todo-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ 할일 관리</h1>
+            <p>할일을 추가, 수정, 삭제해보세요</p>
+        </div>
+
+        <div class="content">
+            <div id="message" class="message"></div>
+
+            <!-- 할일 추가 폼 -->
+            <div class="form-section">
+                <h2>새 할일 추가</h2>
+                <form id="todoForm">
+                    <div class="form-group">
+                        <label for="title">제목 *</label>
+                        <input type="text" id="title" name="title" required placeholder="할일 제목을 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">설명</label>
+                        <textarea id="description" name="description" placeholder="할일 설명을 입력하세요 (선택사항)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="completed" name="completed">
+                            <label for="completed">완료 상태로 추가</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">할일 추가</button>
+                </form>
+            </div>
+
+            <!-- 할일 목록 -->
+            <div class="todos-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>할일 목록</h2>
+                    <a href="/admin.html" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 14px;">📊 테이블로 보기 →</a>
+                </div>
+                <div id="todoList" class="todo-list">
+                    <div class="loading">로딩 중...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/todos';
+        
+        // 메시지 표시 함수
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message message-${type} show`;
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        // 할일 목록 조회
+        async function fetchTodos() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayTodos(result.data);
+                } else {
+                    showMessage('할일 목록을 불러오는데 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('서버 연결에 실패했습니다.', 'error');
+                document.getElementById('todoList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>서버에 연결할 수 없습니다.</p></div>';
+            }
+        }
+
+        // 할일 목록 표시
+        function displayTodos(todos) {
+            const todoList = document.getElementById('todoList');
+            
+            if (todos.length === 0) {
+                todoList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>할일이 없습니다. 새로운 할일을 추가해보세요!</p></div>';
+                return;
+            }
+
+            todoList.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo._id}">
+                    <span class="todo-status ${todo.completed ? 'status-completed' : 'status-pending'}">
+                        ${todo.completed ? '완료' : '진행중'}
+                    </span>
+                    <div class="todo-header">
+                        <div class="todo-title">${escapeHtml(todo.title)}</div>
+                    </div>
+                    ${todo.description ? `<div class="todo-description">${escapeHtml(todo.description)}</div>` : ''}
+                    <div class="todo-actions">
+                        <button class="btn btn-success btn-small" onclick="toggleTodo('${todo._id}', ${!todo.completed})">
+                            ${todo.completed ? '미완료로 변경' : '완료로 변경'}
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="editTodo('${todo._id}')">수정</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteTodo('${todo._id}')">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 할일 추가
+        document.getElementById('todoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const completed = document.getElementById('completed').checked;
+
+            if (!title) {
+                showMessage('제목을 입력해주세요.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, description, completed })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('할일이 추가되었습니다!');
+                    document.getElementById('todoForm').reset();
+                    fetchTodos();
+                } else {
+                    showMessage(result.message || '할일 추가에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('할일 추가 중 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        // 할일 완료 상태 변경
+        async function toggleTodo(id, completed) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ completed })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(`할일이 ${completed ? '완료' : '미완료'}로 변경되었습니다.`);
+                    fetchTodos();
+                } else {
+                    showMessage(result.message || '할일 수정에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('할일 수정 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 할일 수정
+        async function editTodo(id) {
+            const title = prompt('새로운 제목을 입력하세요:');
+            if (title === null) return;
+
+            const description = prompt('새로운 설명을 입력하세요 (취소하려면 빈 값 입력):');
+            if (description === null) return;
+
+            try {
+                const updateData = { title };
+                if (description !== null) {
+                    updateData.description = description;
+                }
+
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('할일이 수정되었습니다!');
+                    fetchTodos();
+                } else {
+                    showMessage(result.message || '할일 수정에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('할일 수정 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 할일 삭제
+        async function deleteTodo(id) {
+            if (!confirm('정말 이 할일을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('할일이 삭제되었습니다.');
+                    fetchTodos();
+                } else {
+                    showMessage(result.message || '할일 삭제에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('할일 삭제 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 페이지 로드 시 할일 목록 조회
+        fetchTodos();
+    </script>
+</body>
+</html>
+

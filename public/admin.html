@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할일 데이터 관리자</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+        }
+
+        .header .stats {
+            text-align: right;
+        }
+
+        .header .stats p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: #667eea;
+            text-decoration: none;
+            padding: 10px 15px;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .id-cell {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #666;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .description-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .date-cell {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .actions-cell button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #138496;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 할일 데이터 관리자</h1>
+            </div>
+            <div class="stats">
+                <p id="totalCount">총 0개</p>
+                <p id="completedCount">완료: 0개</p>
+                <p id="pendingCount">미완료: 0개</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="message" class="message"></div>
+
+            <div class="toolbar">
+                <a href="/" class="btn btn-link">← 메인 페이지로</a>
+                <button class="btn btn-primary" onclick="loadTodos()">🔄 새로고침</button>
+            </div>
+
+            <div id="todoTableContainer">
+                <div class="loading">로딩 중...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/todos';
+
+        // 메시지 표시 함수
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message message-${type} show`;
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        // 할일 목록 로드
+        async function loadTodos() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayTodos(result.data);
+                    updateStats(result.data);
+                } else {
+                    showMessage('할일 목록을 불러오는데 실패했습니다.', 'error');
+                    document.getElementById('todoTableContainer').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>데이터를 불러올 수 없습니다.</p></div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('서버 연결에 실패했습니다.', 'error');
+                document.getElementById('todoTableContainer').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>서버에 연결할 수 없습니다.</p></div>';
+            }
+        }
+
+        // 통계 업데이트
+        function updateStats(todos) {
+            const total = todos.length;
+            const completed = todos.filter(t => t.completed).length;
+            const pending = total - completed;
+
+            document.getElementById('totalCount').textContent = `총 ${total}개`;
+            document.getElementById('completedCount').textContent = `완료: ${completed}개`;
+            document.getElementById('pendingCount').textContent = `미완료: ${pending}개`;
+        }
+
+        // 할일 목록 테이블 표시
+        function displayTodos(todos) {
+            const container = document.getElementById('todoTableContainer');
+            
+            if (todos.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>할일이 없습니다.</p></div>';
+                return;
+            }
+
+            // 날짜 포맷 함수
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>제목</th>
+                            <th>설명</th>
+                            <th>완료 상태</th>
+                            <th>생성일</th>
+                            <th>수정일</th>
+                            <th>ID</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            todos.forEach((todo, index) => {
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${escapeHtml(todo.title)}</strong></td>
+                        <td class="description-cell" title="${escapeHtml(todo.description || '')}">${escapeHtml(todo.description || '-')}</td>
+                        <td>
+                            <span class="status-badge ${todo.completed ? 'status-completed' : 'status-pending'}">
+                                ${todo.completed ? '완료' : '미완료'}
+                            </span>
+                        </td>
+                        <td class="date-cell">${formatDate(todo.createdAt)}</td>
+                        <td class="date-cell">${formatDate(todo.updatedAt)}</td>
+                        <td class="id-cell" title="${todo._id}">${todo._id}</td>
+                        <td class="actions-cell">
+                            <button class="btn-view" onclick="viewTodo('${todo._id}')">보기</button>
+                            <button class="btn-delete" onclick="deleteTodo('${todo._id}')">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 할일 상세 보기
+        function viewTodo(id) {
+            fetch(`${API_URL}/${id}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const todo = result.data;
+                        const message = `
+ID: ${todo._id}
+제목: ${todo.title}
+설명: ${todo.description || '(없음)'}
+완료 상태: ${todo.completed ? '완료' : '미완료'}
+생성일: ${new Date(todo.createdAt).toLocaleString('ko-KR')}
+수정일: ${new Date(todo.updatedAt).toLocaleString('ko-KR')}
+                        `;
+                        alert(message);
+                    } else {
+                        showMessage('할일을 불러오는데 실패했습니다.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('할일을 불러오는데 실패했습니다.', 'error');
+                });
+        }
+
+        // 할일 삭제
+        async function deleteTodo(id) {
+            if (!confirm('정말 이 할일을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('할일이 삭제되었습니다.');
+                    loadTodos();
+                } else {
+                    showMessage(result.message || '할일 삭제에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('할일 삭제 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 페이지 로드 시 할일 목록 조회
+        loadTodos();
+
+        // 5초마다 자동 새로고침 (선택사항)
+        // setInterval(loadTodos, 5000);
+    </script>
+</body>
+</html>
+
+
