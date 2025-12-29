@@ -12,6 +12,7 @@ console.log(`현재 작업 디렉터리: ${process.cwd()}`);
 
 // Express 앱 생성
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // CORS 설정 (모든 origin 허용)
 app.use(cors());
