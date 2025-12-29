@@ -34,6 +34,7 @@ mongoose.connect(MONGODB_URI)
   })
   .catch((error) => {
     console.error('MongoDB 연결 실패:', error.message);
+    console.error('연결 문자열:', MONGODB_URI ? MONGODB_URI.replace(/\/\/.*@/, '//***:***@') : '설정되지 않음');
     // Heroku에서는 연결 실패해도 서버는 계속 실행되도록 함
   });
 
