@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const todosRouter = require('./routes/todos');
+const healthRouter = require('./routes/health');
 
 console.log('Node.js 프로젝트가 시작되었습니다!');
 console.log(`Node.js 버전: ${process.version}`);
@@ -25,8 +26,13 @@ app.use(express.static('public')); // 정적 파일 서빙 (프론트엔드)
 // 주의: 연결 문자열 끝에 데이터베이스 이름을 반드시 포함해야 합니다 (/todos)
 const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
 
-// MongoDB 연결
-mongoose.connect(MONGODB_URI)
+// MongoDB 연결 (옵션 추가)
+const mongooseOptions = {
+  serverSelectionTimeoutMS: 5000, // 5초 타임아웃
+  socketTimeoutMS: 45000, // 소켓 타임아웃
+};
+
+mongoose.connect(MONGODB_URI, mongooseOptions)
   .then(() => {
     console.log('MongoDB 연결 성공');
     console.log('연결된 데이터베이스:', mongoose.connection.db.databaseName);
@@ -34,11 +40,13 @@ mongoose.connect(MONGODB_URI)
   })
   .catch((error) => {
     console.error('MongoDB 연결 실패:', error.message);
+    console.error('전체 오류:', error);
     console.error('연결 문자열:', MONGODB_URI ? MONGODB_URI.replace(/\/\/.*@/, '//***:***@') : '설정되지 않음');
     // Heroku에서는 연결 실패해도 서버는 계속 실행되도록 함
   });
 
 // 라우터 설정
+app.use('/api', healthRouter); // 헬스 체크 (MongoDB 연결 상태 확인용)
 app.use('/api', todosRouter);
 
 // 루트 경로에서 index.html 서빙

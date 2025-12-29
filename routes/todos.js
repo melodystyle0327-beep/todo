@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Todo = require('../models/Todo');
 const mongoose = require('mongoose');
+const checkMongoConnection = require('../middleware/checkConnection');
+
+// 모든 라우터에 MongoDB 연결 확인 미들웨어 적용
+router.use(checkMongoConnection);
 
 // 모든 할일 조회 라우터 (GET /api/todos)
 router.get('/todos', async (req, res) => {
